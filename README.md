@@ -21,6 +21,8 @@
       min-height: 100vh;
       padding: 60px 20px;
       text-align: center;
+      position: relative;
+      z-index: 1;
     }
 
     h1 {
@@ -106,7 +108,7 @@
     <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Fireworks Canvas -->
+  <!-- Heart Explosions Canvas -->
   <canvas id="fireworksCanvas"></canvas>
 
   <!-- Main Container -->
@@ -150,7 +152,7 @@
   <script>
     AOS.init({ once: true });
 
-    // Fireworks effect
+    // Heart Explosion Effect
     const canvas = document.getElementById('fireworksCanvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -158,12 +160,18 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    class Particle {
-      constructor(x, y, dx, dy, color, life) {
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    class HeartParticle {
+      constructor(x, y, dx, dy, size, color, life) {
         this.x = x;
         this.y = y;
         this.dx = dx;
         this.dy = dy;
+        this.size = size;
         this.color = color;
         this.life = life;
         this.opacity = 1;
@@ -172,29 +180,44 @@
       update() {
         this.x += this.dx;
         this.y += this.dy;
-        this.dy += 0.05;
+        this.dy += 0.03;
         this.life--;
         this.opacity = this.life / 100;
       }
 
-      draw() {
+      drawHeart(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.scale(this.size, this.size);
         ctx.beginPath();
-        ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${this.color},${this.opacity})`;
+        ctx.moveTo(0, 0);
+        ctx.bezierCurveTo(0, -3, -3, -3, -3, 0);
+        ctx.bezierCurveTo(-3, 3, 0, 5, 0, 7);
+        ctx.bezierCurveTo(0, 5, 3, 3, 3, 0);
+        ctx.bezierCurveTo(3, -3, 0, -3, 0, 0);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
         ctx.fill();
+        ctx.restore();
+      }
+
+      draw() {
+        this.drawHeart(ctx);
       }
     }
 
-    function fireworks() {
+    function heartExplosion() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
       if (Math.random() < 0.05) {
         const x = Math.random() * canvas.width;
         const y = Math.random() * canvas.height / 2;
-        const color = `${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}`;
-        for (let i = 0; i < 50; i++) {
+        const color = `${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 100)}, ${Math.floor(Math.random() * 150)}`;
+        for (let i = 0; i < 30; i++) {
           const angle = Math.random() * 2 * Math.PI;
-          const speed = Math.random() * 5;
-          particles.push(new Particle(x, y, Math.cos(angle) * speed, Math.sin(angle) * speed, color, 100));
+          const speed = Math.random() * 3 + 1;
+          const size = Math.random() * 0.5 + 0.2;
+          particles.push(new HeartParticle(x, y, Math.cos(angle) * speed, Math.sin(angle) * speed, size, color, 100));
         }
       }
 
@@ -204,10 +227,10 @@
         if (p.life <= 0) particles.splice(index, 1);
       });
 
-      requestAnimationFrame(fireworks);
+      requestAnimationFrame(heartExplosion);
     }
 
-    fireworks();
+    heartExplosion();
   </script>
 </body>
 </html>
