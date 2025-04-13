@@ -104,7 +104,7 @@
 </head>
 <body>
   <!-- Heart Explosions Canvas -->
-  <canvas id="fireworksCanvas"></canvas>
+  <canvas id="heartsCanvas"></canvas>
 
   <!-- Main Container -->
   <div class="overlay">
@@ -147,10 +147,10 @@
   <script>
     AOS.init({ once: true });
 
-    // Heart Explosion Effect
-    const canvas = document.getElementById('fireworksCanvas');
+    // Heart Explosion Animation
+    const canvas = document.getElementById('heartsCanvas');
     const ctx = canvas.getContext('2d');
-    let particles = [];
+    let hearts = [];
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -160,27 +160,25 @@
       canvas.height = window.innerHeight;
     });
 
-    class HeartParticle {
-      constructor(x, y, dx, dy, size, color, life) {
+    class Heart {
+      constructor(x, y, dx, dy, size, color) {
         this.x = x;
         this.y = y;
         this.dx = dx;
         this.dy = dy;
         this.size = size;
         this.color = color;
-        this.life = life;
-        this.opacity = 1;
+        this.life = 100;
       }
 
       update() {
         this.x += this.dx;
         this.y += this.dy;
-        this.dy += 0.03;
+        this.dy += 0.05;
         this.life--;
-        this.opacity = this.life / 100;
       }
 
-      drawHeart(ctx) {
+      draw() {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.scale(this.size, this.size);
@@ -191,41 +189,40 @@
         ctx.bezierCurveTo(0, 5, 3, 3, 3, 0);
         ctx.bezierCurveTo(3, -3, 0, -3, 0, 0);
         ctx.closePath();
-        ctx.fillStyle = `rgba(${this.color}, ${this.opacity})`;
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = this.life / 100;
         ctx.fill();
         ctx.restore();
       }
+    }
 
-      draw() {
-        this.drawHeart(ctx);
+    function generateHearts() {
+      const x = Math.random() * canvas.width;
+      const y = Math.random() * canvas.height / 2;
+      const colors = ['#ff4d6d', '#ff94c2', '#ffc0cb', '#ff5e78'];
+      for (let i = 0; i < 20; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 2 + 1;
+        const dx = Math.cos(angle) * speed;
+        const dy = Math.sin(angle) * speed;
+        const size = Math.random() * 0.5 + 0.3;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        hearts.push(new Heart(x, y, dx, dy, size, color));
       }
     }
 
-    function heartExplosion() {
+    function animateHearts() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      if (Math.random() < 0.05) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height / 2;
-        const color = `${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 100)}, ${Math.floor(Math.random() * 150)}`;
-        for (let i = 0; i < 30; i++) {
-          const angle = Math.random() * 2 * Math.PI;
-          const speed = Math.random() * 3 + 1;
-          const size = Math.random() * 0.5 + 0.2;
-          particles.push(new HeartParticle(x, y, Math.cos(angle) * speed, Math.sin(angle) * speed, size, color, 100));
-        }
-      }
-
-      particles.forEach((p, index) => {
-        p.update();
-        p.draw();
-        if (p.life <= 0) particles.splice(index, 1);
+      if (Math.random() < 0.1) generateHearts();
+      hearts.forEach((heart, index) => {
+        heart.update();
+        heart.draw();
+        if (heart.life <= 0) hearts.splice(index, 1);
       });
-
-      requestAnimationFrame(heartExplosion);
+      requestAnimationFrame(animateHearts);
     }
 
-    heartExplosion();
+    animateHearts();
   </script>
 </body>
 </html>
