@@ -103,11 +103,6 @@
   </style>
 </head>
 <body>
-  <!-- Romantic music -->
-  <audio autoplay loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-  </audio>
-
   <!-- Heart Explosions Canvas -->
   <canvas id="fireworksCanvas"></canvas>
 
